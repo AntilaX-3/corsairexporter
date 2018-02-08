@@ -1,0 +1,4 @@
+{
+  "device": "/dev/ttyUSB0",
+  "scrapeInterval": 15
+}
