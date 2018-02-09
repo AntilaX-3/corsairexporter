@@ -25,7 +25,7 @@ const gauges = {
 };
 const main = () => {
   // Spawn the child process
-  const cmd = spawn('cpsumoncli', [config.device]);
+  const cmd = spawn('/app/cpsumoncli', [config.device]);
 
   // Use carrier to build a buffer delimited by line
   const line = carrier.carry(cmd.stdout);
@@ -36,12 +36,14 @@ const main = () => {
       const jsonData = JSON.parse(data.toString());
       if (jsonData === undefined) return;
 
-
-      console.log(jsonData);
-      // // Set gauges
-      gauges.voltage.set(jsonData.voltage);
+      // Set gauges
+      for (let key in gauges) {
+        if (jsonData.hasOwnProperty(key)) {
+          gauges[key].set(jsonData[key]);
+        }
+      }
     } catch (err) {
-      console.log('Unable to parse incoming data', err);
+      console.log(`Unable to parse incoming data (${data}`);
     }
   });
 
