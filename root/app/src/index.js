@@ -7,7 +7,7 @@ import loadConfig from './config';
 const config = loadConfig('/config/corsairexporter.json', ['device']);
 
 const port = config.port || 9123;
-const scrapeInterval = (config.scrapeInterval || 15) * 1000;
+const scrapeInterval = (config.scrapeInterval || 10) * 1000;
 const defaultMetrics = Prometheus.collectDefaultMetrics({ timeout: scrapeInterval });
 
 const namePrefix = 'corsair';
@@ -23,7 +23,7 @@ const gauges = {
   outputPower: new Prometheus.Gauge({ name: `${namePrefix}_outputPower`, help: 'Output power' }),
   efficiency: new Prometheus.Gauge({ name: `${namePrefix}_efficiency`, help: 'Efficiency' }),
 };
-const main = () => {
+const getMetrics = () => {
   // Spawn the child process
   const cmd = spawn('/app/cpsumoncli', [config.device]);
 
@@ -45,14 +45,6 @@ const main = () => {
     } catch (err) {
       console.log(`Unable to parse incoming data (${data}`);
     }
-  });
-
-  cmd.stderr.on('data', (data) => {
-    console.log(data.toString());
-  });
-
-  cmd.on('close', (code) => {
-    console.log(`Child process exited with code ${code}`);
   });
 
   cmd.on('error', (error) => {
@@ -84,7 +76,9 @@ app.use((err, req, res, next) => {
 
 const server = app.listen((port), () => {
   console.log(`Running corsairexporter. Listening on port ${port}.`);
-  main();
+  getMetrics();
+  // Start a timer to fetch metrics
+  setInterval(getMetrics, scrapeInterval);
 });
 
 // Shutdown gracefully
