@@ -27,7 +27,5 @@ rm -rf \
     src
 
 # ports and volumes
-EXPOSE 9122
+EXPOSE 9123
 VOLUME /config
-
-CMD ["node", "main.js"]
