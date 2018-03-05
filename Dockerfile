@@ -1,5 +1,10 @@
 FROM antilax3/node
 
+# set version label
+ARG build_date
+ARG version
+LABEL maintainer="Nightah"
+
 # set environment variables
 ENV NODE_CONFIG_DIR /config
 
